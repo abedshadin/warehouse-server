@@ -37,11 +37,39 @@ async function run() {
             res.send(inventory);
         });
 
+        app.put('/product/:id', async(req, res) =>{
+            const id = req.params.id;
+            const updatedQuantity = req.body;
+            const filter = {_id:ObjectId(id)};
+            const options = {upsert: true};
+            const updatedDoc = {
+                $set: {
+                    "quantity": parseInt(updatedQuantity.addQuantity) 
+                }
+            }
+            const result = await productCollection.updateOne(filter, updatedDoc, options);
+
+            res.send(result);
+        });
+
         app.get('/members', async (req, res) => {
             const query = {};
             const cursor = memberCollection.find(query);
             const members = await cursor.toArray();
             res.send(members);
+        });
+
+        app.delete('/product/:id', async(req, res) =>{
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await productCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        app.post('/product', async(req, res) =>{
+            const newService = req.body;
+            const result = await productCollection.insertOne(newService);
+            res.send(result);
         });
 
     }
