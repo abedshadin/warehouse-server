@@ -21,6 +21,7 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db('warehouse').collection('product');
+        const memberCollection = client.db('warehouse').collection('ourMembers');
 
         app.get('/product', async (req, res) => {
             const query = {};
@@ -29,7 +30,19 @@ async function run() {
             res.send(products);
         });
 
-        
+        app.get('/inventory/:id', async(req, res) =>{
+            const id = req.params.id;
+            const query={_id: ObjectId(id)};
+            const inventory = await productCollection.findOne(query);
+            res.send(inventory);
+        });
+
+        app.get('/members', async (req, res) => {
+            const query = {};
+            const cursor = memberCollection.find(query);
+            const members = await cursor.toArray();
+            res.send(members);
+        });
 
     }
     finally {
@@ -37,13 +50,15 @@ async function run() {
     }
 }
 
+
+
 run().catch(console.dir);
 
 
 
 
 app.get('/', (req, res) => {
-    res.send('Running Genius Server');
+    res.send('Running Server');
 });
 
 app.listen(port, () => {
