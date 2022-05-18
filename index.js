@@ -30,6 +30,12 @@ async function run() {
             res.send(products);
         });
 
+        app.get('/inventory/:id', async(req, res) =>{
+            const id = req.params.id;
+            const query={_id: ObjectId(id)};
+            const inventory = await productCollection.findOne(query);
+            res.send(inventory);
+        });
 
         app.get('/myitems', async (req, res) => {
             const email = req.query.email;
@@ -39,26 +45,9 @@ async function run() {
             res.send(products);
         });
 
-        app.get('/inventory/:id', async(req, res) =>{
-            const id = req.params.id;
-            const query={_id: ObjectId(id)};
-            const inventory = await productCollection.findOne(query);
-            res.send(inventory);
-        });
+      
 
-        app.put('/product/:id', async(req, res) =>{
-            const id = req.params.id;
-            const addQuan = req.body;
-            const filter = {_id:ObjectId(id)};
-            const options = {upsert: true};
-            const updatedDoc = {
-                $set: {
-                    quantity: addQuan
-                }
-            }
-            const result = await productCollection.updateOne(filter, updatedDoc, options);
-            res.send(result);
-        });
+       
 
         app.get('/members', async (req, res) => {
             const query = {};
@@ -79,6 +68,25 @@ async function run() {
             const query = {_id: ObjectId(id)};
             const result = await productCollection.deleteOne(query);
             res.send(result);
+        });
+
+        app.put('/product/:id', async(req, res) =>{
+            // res.send("Working")
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const options = {upsert: true}
+            const doc = {
+                $set: req.body
+            }
+            const result = await productCollection.updateOne(query, doc, options);
+            res.send(result);
+        });
+
+        app.post('/login',(req,res)=>{
+            const email = req.body;
+            const jwt = require('jsonwebtoken');
+            const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET);
+            
         });
 
 
